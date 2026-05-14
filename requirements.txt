@@ -1,0 +1,13 @@
+# Core
+pandas
+numpy
+scikit-learn
+joblib
+
+# Visualisation
+matplotlib
+seaborn
+
+# Web / API
+flask
+streamlit
