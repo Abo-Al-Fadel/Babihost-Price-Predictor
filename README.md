@@ -27,6 +27,7 @@ print(r.json())
 ```
 
 ## Repository Structure
+```text
 BabiHost-Price-Predictor/
 ├── app/                # Flask API + saved model artifacts (.pkl)
 ├── data/               # listings.csv (download manually)
@@ -38,3 +39,4 @@ BabiHost-Price-Predictor/
 ├── streamlit/          # Interactive dashboard
 ├── requirements.txt    # Production dependencies
 └── README.md           # This file
+```
