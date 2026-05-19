@@ -1,5 +1,7 @@
 # BabiHost Accommodation Price Predictor
 
+**Live App:** [https://babihost.streamlit.app/](https://babihost.streamlit.app/)
+
 ML project for BabiHost internship. Predicts nightly prices using Cape Town Airbnb data as proxy for West Africa. Includes data cleaning, feature engineering, hyperparameter tuning, Flask API, and Streamlit dashboard.
 
 ## Setup
