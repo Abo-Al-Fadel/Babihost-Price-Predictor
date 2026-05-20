@@ -16,13 +16,13 @@ from src.features import (
 # Page Layout & Styling
 st.set_page_config(
     page_title="BabiHost Accommodation Price Estimator",
-    page_icon="🏠",
+    page_icon="house",
     layout="centered",
     initial_sidebar_state="expanded"
 )
 
 # Header
-st.title("🏠 BabiHost Price Estimator")
+st.title("BabiHost Price Estimator")
 st.subheader("Cape Town Proxy for West African Short-Term Rentals")
 st.markdown("""
 Welcome to the BabiHost price estimator dashboard!
@@ -38,12 +38,12 @@ try:
     model, neigh_freq = load_cached_artifacts()
     artifact_loaded = True
 except Exception as e:
-    st.error(f"⚠️ Error loading model artifacts: {str(e)}")
+    st.error(f"Error loading model artifacts: {str(e)}")
     artifact_loaded = False
 
 if artifact_loaded:
     # Sidebar Input Fields
-    st.sidebar.header("🏠 Property Details")
+    st.sidebar.header("Property Details")
     bedrooms = st.sidebar.number_input("Bedrooms", min_value=0, max_value=10, value=2, step=1)
     bathrooms = st.sidebar.number_input("Bathrooms (e.g., 1.5)", min_value=0.5, max_value=10.0, value=2.0, step=0.5)
     accommodates = st.sidebar.number_input("Accommodates (Guests)", min_value=1, max_value=20, value=4, step=1)
@@ -62,7 +62,7 @@ if artifact_loaded:
     st.sidebar.caption("Model Version: **Random Forest v2.0 (One-Hot Encoded, R²≈0.62)**")
 
     # Predict Trigger
-    if st.sidebar.button("🔮 Predict Optimal Price", use_container_width=True):
+    if st.sidebar.button("Predict Optimal Price", use_container_width=True):
         features = build_feature_vector(
             bedrooms=bedrooms,
             bathrooms=bathrooms,
@@ -88,7 +88,7 @@ if artifact_loaded:
         low_usd = low / usd_exch
         high_usd = high / usd_exch
 
-        st.markdown("### 🔮 Price Prediction Results")
+        st.markdown("### Price Prediction Results")
 
         # Display clean metrics in columns
         col1, col2 = st.columns(2)
@@ -98,8 +98,8 @@ if artifact_loaded:
             st.metric(label="Estimated Price (USD)", value=f"${pred_usd:,.2f} USD")
 
         # Clean display of ranges without nested bold tags that confuse markdown parsers
-        st.info(f"🔒 **95% Confidence Range (ZAR):** {low:,.2f} ZAR to {high:,.2f} ZAR")
-        st.success(f"💵 **95% Confidence Range (USD):** ${low_usd:,.2f} USD to ${high_usd:,.2f} USD")
+        st.info(f"**95% Confidence Range (ZAR):** {low:,.2f} ZAR to {high:,.2f} ZAR")
+        st.success(f"**95% Confidence Range (USD):** ${low_usd:,.2f} USD to ${high_usd:,.2f} USD")
 
         st.caption(f"Note: Calculations use an approximate exchange rate of 1 USD = {usd_exch} ZAR. The estimator captures normal mid/premium short-term rentals within range (100 to 10,000 ZAR).")
 else:
