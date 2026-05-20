@@ -76,30 +76,31 @@ if artifact_loaded:
             neigh_freq_map=neigh_freq,
         )
 
+        # Run prediction
         res = predict_price(model, features)
         pred = res['predicted_price']
         low = res['lower_bound']
         high = res['upper_bound']
 
-        # Local Currency display (ZAR)
-        st.success(f"### Predicted Nightly Price: **{pred:,.2f} ZAR**")
-        
-        # Uncertainty bounds (M1)
-        st.info(f"🔒 **95% Confidence Range:** **{low:,.2f} ZAR** to **{high:,.2f} ZAR**")
-        
-        # Exchange conversion
+        # Conversions
         usd_exch = 18.0
         pred_usd = pred / usd_exch
         low_usd = low / usd_exch
         high_usd = high / usd_exch
-        
-        st.markdown(f"""
-        **Approximate USD Value (at 1 USD = {usd_exch} ZAR):**
-        * Estimate: **${pred_usd:.2f} USD**
-        * 95% Confidence Range: **${low_usd:.2f} USD** to **${high_usd:.2f} USD**
-        """)
-        
-        # Visual cues based on prediction range
-        st.caption("Pricing estimate matches listings in Cape Town's premium/mid tier range (100 to 10,000 ZAR).")
+
+        st.markdown("### 🔮 Price Prediction Results")
+
+        # Display clean metrics in columns
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label="Predicted Nightly Price (ZAR)", value=f"{pred:,.2f} ZAR")
+        with col2:
+            st.metric(label="Estimated Price (USD)", value=f"${pred_usd:,.2f} USD")
+
+        # Clean display of ranges without nested bold tags that confuse markdown parsers
+        st.info(f"🔒 **95% Confidence Range (ZAR):** {low:,.2f} ZAR to {high:,.2f} ZAR")
+        st.success(f"💵 **95% Confidence Range (USD):** ${low_usd:,.2f} USD to ${high_usd:,.2f} USD")
+
+        st.caption(f"Note: Calculations use an approximate exchange rate of 1 USD = {usd_exch} ZAR. The estimator captures normal mid/premium short-term rentals within range (100 to 10,000 ZAR).")
 else:
     st.warning("Prediction dashboard is disabled because model pickle files were not found. Please train the model to enable predicting.")
