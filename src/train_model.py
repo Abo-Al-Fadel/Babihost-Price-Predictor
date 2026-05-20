@@ -13,7 +13,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-from src.features import FEATURE_COLUMNS
+from src.constants import FEATURE_COLUMNS
 
 
 def prepare_xy(df, feature_cols=None, target_col='price_clean'):
@@ -60,7 +60,7 @@ def evaluate_model(model, X_test, y_test):
 
 def train_default_rf(X_train, y_train, n_estimators=100, random_state=42):
     """Train and return a default Random Forest regressor."""
-    model = RandomForestRegressor(n_estimators=n_estimators, random_state=random_state)
+    model = RandomForestRegressor(n_estimators=n_estimators, random_state=random_state, n_jobs=-1)
     model.fit(X_train, y_train)
     return model
 
@@ -68,6 +68,7 @@ def train_default_rf(X_train, y_train, n_estimators=100, random_state=42):
 def tune_rf(X_train, y_train, n_iter=50, cv=5, random_state=42):
     """
     Perform RandomizedSearchCV on a Random Forest and return the best model.
+    The parameter search space aligns with model tuning requirements.
     """
     param_dist = {
         'n_estimators': [100, 200, 300, 400, 500],

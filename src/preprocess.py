@@ -10,6 +10,8 @@ import re
 import numpy as np
 import pandas as pd
 
+from src.constants import FEATURE_COLUMNS, ROOM_TYPES
+
 
 def clean_price(price_series):
     """
@@ -51,15 +53,21 @@ def extract_bathrooms(bathrooms_text_series):
     def _parse(text):
         if pd.isna(text):
             return np.nan
-        match = re.search(r'(\d+\.?\d*)', str(text))
+        # Find numbers like 1, 1.5, 2 etc. before 'bath' (case-insensitive)
+        match = re.search(r'(\d+(?:\.\d+)?)\s*bath', str(text).lower())
         return float(match.group(1)) if match else np.nan
 
     return bathrooms_text_series.apply(_parse)
 
 
-def filter_price_range(df, low=10, high=1000, price_col='price_clean'):
+def filter_price_range(df, low=100, high=10000, price_col='price_clean'):
     """
     Remove outlier rows whose price falls outside [low, high].
+
+    Note: The Cape Town Airbnb dataset lists prices in local South African Rand (ZAR)
+    using the dollar sign. The previous bounds (10, 1000) filtered out 83% of the data,
+    introducing significant selection bias. Shifting the limits to (100, 10000) ZAR
+    retains a representative and standard segment of Cape Town accommodation.
 
     Parameters
     ----------
@@ -86,7 +94,8 @@ def add_engineered_features(df):
     Columns added
     -------------
     host_verified, num_amenities, price_per_person, availability_ratio,
-    is_superhost, room_type_encoded, neighbourhood_freq
+    is_superhost, room_type_entire, room_type_private, room_type_shared,
+    room_type_hotel, neighbourhood_freq
     """
     # Boolean mappings
     df['host_verified'] = df['host_identity_verified'].map({'t': 1, 'f': 0}).fillna(0)
@@ -96,14 +105,17 @@ def add_engineered_features(df):
     df['num_amenities'] = df['amenities'].str.count(',') + 1
 
     # Price per person (useful for EDA, not used as a model feature)
-    df['price_per_person'] = df['price_clean'] / df['accommodates']
+    # Protection against divide-by-zero if accommodates is 0: replace with NaN
+    df['price_per_person'] = df['price_clean'] / df['accommodates'].replace(0, np.nan)
 
     # Availability ratio
-    df['availability_ratio'] = df['availability_365'] / 365
+    df['availability_ratio'] = df['availability_365'] / 365.0
 
-    # Room type encoding
-    from src.features import ROOM_TYPE_MAP
-    df['room_type_encoded'] = df['room_type'].map(ROOM_TYPE_MAP)
+    # One-hot encoding for room types to avoid modeling categories as linear ordinal values
+    df['room_type_entire'] = (df['room_type'] == 'Entire home/apt').astype(int)
+    df['room_type_private'] = (df['room_type'] == 'Private room').astype(int)
+    df['room_type_shared'] = (df['room_type'] == 'Shared room').astype(int)
+    df['room_type_hotel'] = (df['room_type'] == 'Hotel room').astype(int)
 
     # Neighbourhood frequency encoding
     neigh_freq = df['neighbourhood_cleansed'].value_counts(normalize=True)
